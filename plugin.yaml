@@ -409,7 +409,7 @@ providers:
   - name: aws-cli-ec2-create-snapshot
     service: WorkflowNodeStep
     title: 'aws / ec2 / create EBS Snapshot'
-    description: 'Creates an EBS Snapshot and stores the volume snap in an S3 bucket..'
+    description: 'Creates an EBS Snapshot and stores the volume snap in an S3 bucket.'
     plugin-type: script
     script-interpreter: python -u
     script-file: ec2-create-snapshot
@@ -605,7 +605,7 @@ providers:
   - name: aws-cli-ec2-reboot-instances-step
     service: WorkflowNodeStep
     title: 'aws / ec2 / reboot-instances'
-    description: 'reboots the EC2 instance. (Soft reboot unless unresponsive. After 4m, hard reboot)'
+    description: 'Reboots the EC2 instance. (Soft reboot unless unresponsive. After 4m, hard reboot).'
     plugin-type: script
     script-interpreter: python -u
     script-file: ec2-reboot-instances
