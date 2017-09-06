@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+# ec2-start-instances
+import argparse
+import os
+import subprocess
+import sys
+import logging
+import time
+
+formatter = logging.Formatter()
+logging.basicConfig(stream=sys.stderr, level=logging.INFO,
+                    format='%(levelname)s: %(message)s')
+log = logging.getLogger('ec2-create-snapshot')
+
+
+parser = argparse.ArgumentParser(description='Creates snapshot of an EBS volume and stores it in S3.')
+parser.add_argument('volume_id', help='One or more volume IDs.')
+parser.add_argument('volume_description', help='EBS snapshot description.')
+args = parser.parse_args()
+
+COMMAND = ["aws", "ec2", "create-snapshot", "--volume-id", args.volume_id, "--description", args.volume_description]
+
+
+if os.getenv("RD_CONFIG_DRYRUN") == "true":
+    COMMAND.append("--dry-run")
+if os.getenv("RD_CONFIG_NOREBOOT") == "true":
+    COMMAND.append("--no-reboot")
+if "RD_CONFIG_ADDITIONAL_INFO" in os.environ:
+    COMMAND.append("--additional-info")
+    COMMAND.append(os.getenv("RD_CONFIG_ADDITIONAL_INFO"))
+if "RD_CONFIG_CLI_INPUT_JSON" in os.environ:
+    COMMAND.append("--cli-input-json")
+    COMMAND.append(os.getenv("RD_CONFIG_CLI_INPUT_JSON"))
+if "RD_CONFIG_GENERATE_CLI_SKELETON" in os.environ:
+    COMMAND.append("--generate-cli-skeleton")
+    COMMAND.append(os.getenv("RD_CONFIG_GENERATE_CLI_SKELETON"))
+
+if "RD_CONFIG_ACCESS_KEY" in os.environ:
+    os.environ["AWS_ACCESS_KEY_ID"] = os.environ["RD_CONFIG_ACCESS_KEY"]
+if "RD_CONFIG_SECRET_ACCESS_KEY" in os.environ:
+	os.environ["AWS_SECRET_ACCESS_KEY"] = os.environ["RD_CONFIG_SECRET_ACCESS_KEY"]
+if "RD_CONFIG_DEFAULT_REGION" in os.environ:
+	os.environ["AWS_DEFAULT_REGION"] = os.environ["RD_CONFIG_DEFAULT_REGION"]
+
+log.info("Executing: '%s' ..." % ' '.join(COMMAND))
+
+try:
+    retcode = subprocess.call(COMMAND)
+    time.sleep(5)
+    sys.exit(retcode)
+except OSError as e:
+    print >>sys.stderr, "Command error:", e
+    sys.exit(1)
+# Done

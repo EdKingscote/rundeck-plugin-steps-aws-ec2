@@ -1,8 +1,8 @@
 name: aws-cli-ec2-steps-plugin
-version: 1.0.0
+version: 1.0.5
 rundeckPluginVersion: 1.2
-author: alexh
-date: Tue June 28 2017
+author: alexh, modded by Anna Hegedüs
+date: Sept 8 2017
 providers:
   - name: aws-cli-ec2-start-instances-step
     service: WorkflowNodeStep
@@ -16,9 +16,8 @@ providers:
       - type: String
         name: instance-ids
         title: instance-ids
-        description: 'One or more instance IDs (default: ${node.instanceId}).'
+        description: 'One instance ID (default: i-xxxxxx).'
         required: true
-        default: '${node.instanceId}'
       - type: String
         name: additional-info
         title: additional-info
@@ -73,9 +72,8 @@ providers:
       - type: String
         name: instance-ids
         title: instance-ids
-        description: 'One or more instance IDs (default: ${node.instanceId}).'
+        description: 'One instance ID (Ex: i-xxxxxx).'
         required: true
-        default: '${node.instanceId}'        
       - type: String
         name: additional-info
         title: additional-info
@@ -121,7 +119,7 @@ providers:
   - name: aws-cli-ec2-describe-instance-status-step
     service: WorkflowNodeStep
     title: 'aws / ec2 / describe-instance-status'
-    description: 'Stops the EC2 instance.'
+    description: 'Describe the EC2 instance.'
     plugin-type: script
     script-interpreter: python -u
     script-file: ec2-describe-instance-status
@@ -130,9 +128,8 @@ providers:
       - type: String
         name: instance-ids
         title: instance-ids
-        description: 'One or more instance IDs (default: ${node.instanceId}).'
+        description: 'One Instance ID (Ex: i-xxxxxxx).'
         required: true
-        default: '${node.instanceId}'        
       - type: String
         name: filters
         title: filters
@@ -175,3 +172,433 @@ providers:
         renderingOptions:
           grouping: secondary
           groupName: Credentials          
+  - name: aws-cli-elb-register-instances-step
+    service: WorkflowNodeStep
+    title: 'aws / elb / Register-instances-with-load-balancer'
+    description: 'Registers nodes with an Elastic Load Balancer'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-elb-register-instances
+    script-args: ${config.load-balancer-name} ${config.instance-ids}
+    config:
+      - type: String
+        name: load-balancer-name
+        title: load-balancer-name
+        description: 'ELB name'
+        required: true
+      - type: String
+        name: instance-ids
+        title: instance-ids
+        description: 'One instance ID (Ex: i-xxxxxx).'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: Boolean
+        name: dryrun
+        title: dryrun
+        description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-elb-deregister-instances-step
+    service: WorkflowNodeStep
+    title: 'aws / elb / Deregister-instances-from-load-balancer'
+    description: 'Deregisters nodes from an Elastic Load Balancer'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-elb-deregister-instances
+    script-args: ${config.load-balancer-name} ${config.instance-ids}
+    config:
+      - type: String
+        name: load-balancer-name
+        title: load-balancer-name
+        description: 'ELB name'
+        required: true
+      - type: String
+        name: instance-ids
+        title: instance-ids
+        description: 'One instance ID (Ex. i-xxxxxx).'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: Boolean
+        name: dryrun
+        title: dryrun
+        description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-ec2-stop-instances-running
+    service: WorkflowNodeStep
+    title: 'aws / ec2 / wait-on-instances'
+    description: 'Waits for an EC2 Instance/Instances to be stopped before executing the next step.'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-stop-instances-running
+    script-args: ${config.instance-ids}
+    config:
+      - type: String
+        name: instance-ids
+        title: instance-ids
+        description: 'One instance ID (default: i-xxxxxx).'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: Boolean
+        name: dryrun
+        title: dryrun
+        description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-ec2-start-instances-running
+    service: WorkflowNodeStep
+    title: 'aws / ec2 / wait-on-instances to start'
+    description: 'Waits for an EC2 Instance/Instances to be started before executing the next step.'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-start-instances-running
+    script-args: ${config.instance-ids}
+    config:
+      - type: String
+        name: instance-ids
+        title: instance-ids
+        description: 'One instance ID (Ex: i-xxxxxx).'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: Boolean
+        name: dryrun
+        title: dryrun
+        description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-ec2-create-snapshot
+    service: WorkflowNodeStep
+    title: 'aws / ec2 / create EBS Snapshot'
+    description: 'Creates an EBS Snapshot and stores the volume snap in an S3 bucket..'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-create-snapshot
+    script-args: ${config.volume-id} ${config.volume_description}
+    config:
+      - type: String
+        name: volume-id
+        title: volume-id
+        description: 'One EBS Volume ID (Ex: vol-XXXXXX.)'
+        required: true
+      - type: String
+        name: volume_description
+        title: volume_description
+        description: 'EBS Snapshot description.'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: Boolean
+        name: dryrun
+        title: dryrun
+        description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-ec2-create-image
+    service: WorkflowNodeStep
+    title: 'aws / ec2 / create-ami'
+    description: 'Creates an AMI.'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-create-image
+    script-args: ${config.instance-id} ${config.image_name} ${config.image_description}
+    config:
+      - type: String
+        name: instance-id
+        title: instance-id
+        description: 'Instance ID.'
+        required: true
+      - type: String
+        name: image_name
+        title: image_name
+        description: 'AMI names must be between 3 and 128 characters long, and may contain letters, numbers, (, ), ., -, / and _'
+        required: true
+      - type: String
+        name: image_description
+        title: image_description
+        description: 'Describe the image.'
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: Boolean
+        name: dryrun
+        title: dryrun
+        description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: Boolean
+        name: noreboot
+        title: noreboot
+        description: 'If checked, this will NOT reboot the instance.'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-ec2-copy-image
+    service: WorkflowNodeStep
+    title: 'aws / ec2 / copy-ami'
+    description: 'Copies an AMI.'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: ec2-copy-image
+    script-args: ${config.image_id} ${config.source_region} ${config.dest_region} ${config.image_name} ${config.image_desc}
+    config:
+      - type: String
+        name: image_id
+        title: image_id
+        description: 'Image ID in the source region.'
+        required: true
+      - type: String
+        name: image_name
+        title: image_name
+        description: 'AMI names must be between 3 and 128 characters long, and may contain letters, numbers, (, ), ., -, / and _'
+        required: true
+      - type: String
+        name: image_desc
+        title: image_desc
+        description: 'AMI description.'
+      - type: Select
+        name: source_region
+        title: source_region
+        description: 'AMI source region'
+        values: 'us-east-2,us-east-1,us-west-1,us-west-2,ca-central-1,eu-central-1,eu-west-1,eu-west-2,ap-northeast-1,ap-southeast-1,ap-southeast-2'
+        required: true
+      - type: Select
+        name: dest_region
+        title: dest_region
+        description: 'AMI destination region'
+        values: 'us-east-2,us-east-1,us-west-1,us-west-2,ca-central-1,eu-central-1,eu-west-1,eu-west-2,ap-northeast-1,ap-southeast-1,ap-southeast-2'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json        
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton 
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'      
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"

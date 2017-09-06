@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+#ec2-copy-image
+import argparse
+import os
+import subprocess
+import sys
+import logging
+
+formatter = logging.Formatter()
+logging.basicConfig(stream=sys.stderr, level=logging.INFO,
+                    format='%(levelname)s: %(message)s')
+log = logging.getLogger('ec2-copy-image')
+
+parser = argparse.ArgumentParser(description='Copies an image of an EC2 Instance to another region.')
+parser.add_argument('image_id', help='One or more AMI IDs.')
+parser.add_argument('source_region', help='AMI Source Region.')
+parser.add_argument('dest_region', help='AMI Destination Region.')
+parser.add_argument('image_name', help='AMI image name.')
+parser.add_argument('image_desc', help='AMI image description.')
+args = parser.parse_args()
+quotes = '"'
+COMMAND = ["aws", "ec2", "copy-image", "--source-image-id", args.image_id, "--source-region", args.source_region, "--region", args.dest_region, "--name", args.image_name, "--description", quotes + args.image_desc + quotes]
+
+if "RD_CONFIG_ADDITIONAL_INFO" in os.environ:
+    COMMAND.append("--additional-info")
+    COMMAND.append(os.getenv("RD_CONFIG_ADDITIONAL_INFO"))
+if "RD_CONFIG_CLI_INPUT_JSON" in os.environ:
+    COMMAND.append("--cli-input-json")
+    COMMAND.append(os.getenv("RD_CONFIG_CLI_INPUT_JSON"))
+if "RD_CONFIG_GENERATE_CLI_SKELETON" in os.environ:
+    COMMAND.append("--generate-cli-skeleton")
+    COMMAND.append(os.getenv("RD_CONFIG_GENERATE_CLI_SKELETON"))
+
+if "RD_CONFIG_ACCESS_KEY" in os.environ:
+    os.environ["AWS_ACCESS_KEY_ID"] = os.environ["RD_CONFIG_ACCESS_KEY"]
+if "RD_CONFIG_SECRET_ACCESS_KEY" in os.environ:
+	os.environ["AWS_SECRET_ACCESS_KEY"] = os.environ["RD_CONFIG_SECRET_ACCESS_KEY"]
+if "RD_CONFIG_DEFAULT_REGION" in os.environ:
+	os.environ["AWS_DEFAULT_REGION"] = os.environ["RD_CONFIG_DEFAULT_REGION"]
+
+log.info("Executing: '%s' ..." % ' '.join(COMMAND))
+
+try:
+    retcode = subprocess.call(COMMAND)
+    sys.exit(retcode)
+except OSError as e:
+    print >>sys.stderr, "Command error:", e
+    sys.exit(1)
+# Done
