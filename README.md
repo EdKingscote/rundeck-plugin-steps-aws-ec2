@@ -16,7 +16,7 @@ The following steps are available:
 * wait-on-instances stop (http://docs.aws.amazon.com/cli/latest/reference/ec2/wait/index.html)
 * deregister-from-load-balancer (http://docs.aws.amazon.com/cli/latest/reference/elb/deregister-instances-from-load-balancer.html)
 * register-with-load-balancer (http://docs.aws.amazon.com/cli/latest/reference/elb/register-instances-with-load-balancer.html)
-* reboot-instances (http://docs.aws.amazon.com/cli/latest/reference/elb/reboot-instances.html)
+* reboot-instances (http://docs.aws.amazon.com/cli/latest/reference/ec2/reboot-instances.html)
 
 
 To build the plugin from source (not needed if you just want to use the plugin):
