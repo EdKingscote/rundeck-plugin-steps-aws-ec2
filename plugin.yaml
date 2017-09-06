@@ -604,7 +604,7 @@ providers:
           storage-path-root: "keys"
   - name: aws-cli-ec2-reboot-instances-step
     service: WorkflowNodeStep
-    title: 'aws / ec2 / Reboot-instances'
+    title: 'aws / ec2 / reboot-instances'
     description: 'reboots the EC2 instance. (Soft reboot unless unresponsive. After 4m, hard reboot)'
     plugin-type: script
     script-interpreter: python -u
