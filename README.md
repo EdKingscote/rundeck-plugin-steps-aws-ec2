@@ -17,7 +17,8 @@ The following steps are available:
 * deregister-from-load-balancer (http://docs.aws.amazon.com/cli/latest/reference/elb/deregister-instances-from-load-balancer.html)
 * register-with-load-balancer (http://docs.aws.amazon.com/cli/latest/reference/elb/register-instances-with-load-balancer.html)
 * reboot-instances (http://docs.aws.amazon.com/cli/latest/reference/ec2/reboot-instances.html)
-
+* rds-failover-db-cluster (https://docs.aws.amazon.com/cli/latest/reference/rds/failover-db-cluster.html)
+* elasticache-test-failover (https://docs.aws.amazon.com/cli/latest/reference/elasticache/test-failover.html)
 
 To build the plugin from source (not needed if you just want to use the plugin):
 
