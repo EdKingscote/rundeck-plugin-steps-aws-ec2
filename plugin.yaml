@@ -714,3 +714,60 @@ providers:
         renderingOptions:
           grouping: secondary
           groupName: Credentials
+  - name: aws-cli-elasticache-test-failover
+    service: WorkflowStep
+    title: 'aws / elasticache / test-failover'
+    description: 'Test automatic failover on a specified Elasticache node group (called shard in the console) in a replication group (called cluster in the console)'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: elasticache-test-failover
+    script-args: ${config.replication-group-id} ${config.node-group-id}
+    config:
+      - type: String
+        name: replication-group-id
+        title: replication-group-id
+        description: 'Name of the replication group (console: cluster) whose automatic failover is being tested by this operation.'
+        required: true
+      - type: String
+        name: node-group-id
+        title: node-group-id
+        description: 'The name of the node group (called shard in the console) in this replication group on which automatic failover is to be tested.'
+        required: true
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials

@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+# elasticache-test-failover
+import argparse
+import os
+import subprocess
+import sys
+import logging
+import time
+
+formatter = logging.Formatter()
+logging.basicConfig(stream=sys.stderr, level=logging.INFO,
+                    format='%(levelname)s: %(message)s')
+log = logging.getLogger('elasticache-test-failover')
+
+
+parser = argparse.ArgumentParser(description='test automatic failover on a specified node group (called shard in the console) in a replication group (called cluster in the console)')
+parser.add_argument('replication_group_id', help='The name of the replication group (console: cluster) whose automatic failover is being tested by this operation.')
+parser.add_argument('node_group_id', help='The name of the node group (called shard in the console) in this replication group on which automatic failover is to be tested.')
+args = parser.parse_args()
+
+COMMAND = ["aws", "elasticache", "test-failover", "--replication-group-id", args.replication_group_id, "--node-group-id", args.node_group_id]
+
+if "RD_CONFIG_CLI_INPUT_JSON" in os.environ:
+    COMMAND.append("--cli-input-json")
+    COMMAND.append(os.getenv("RD_CONFIG_CLI_INPUT_JSON"))
+if "RD_CONFIG_GENERATE_CLI_SKELETON" in os.environ:
+    COMMAND.append("--generate-cli-skeleton")
+    COMMAND.append(os.getenv("RD_CONFIG_GENERATE_CLI_SKELETON"))
+
+if "RD_CONFIG_ACCESS_KEY" in os.environ:
+    os.environ["AWS_ACCESS_KEY_ID"] = os.environ["RD_CONFIG_ACCESS_KEY"]
+if "RD_CONFIG_SECRET_ACCESS_KEY" in os.environ:
+	os.environ["AWS_SECRET_ACCESS_KEY"] = os.environ["RD_CONFIG_SECRET_ACCESS_KEY"]
+if "RD_CONFIG_DEFAULT_REGION" in os.environ:
+        os.environ["AWS_DEFAULT_REGION"] = os.environ["RD_CONFIG_DEFAULT_REGION"]
+
+
+log.info("Executing: '%s' ..." % ' '.join(COMMAND))
+
+try:
+    retcode = subprocess.call(COMMAND)
+    time.sleep(5)
+    sys.exit(retcode)
+except OSError as e:
+    print >>sys.stderr, "Command error:", e
+    sys.exit(1)
+# Done
