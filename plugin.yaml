@@ -1,8 +1,8 @@
 name: aws-cli-ec2-steps-plugin
 version: 1.0.5
 rundeckPluginVersion: 1.2
-author: alexh, modded by Anna Hegedüs
-date: Sept 8 2017
+author: alexh, modded by Anna Hegedüs, further modifications Ed Kingscote
+date: April 21 2022
 providers:
   - name: aws-cli-ec2-start-instances-step
     service: WorkflowNodeStep
@@ -634,6 +634,62 @@ providers:
         name: dryrun
         title: dryrun
         description: 'Checks whether you have the required permissions for the action, without actually making the request, and provides an error response'
+      - type: String
+        name: access_key
+        title: access_key
+        description: 'Access Key ID'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+      - type: String
+        name: secret_access_key
+        title: secret_access_key
+        description: 'Secret access Key'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+          selectionAccessor: "STORAGE_PATH"
+          valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+          storage-path-root: "keys"
+      - type: String
+        name: default_region
+        title: default_region
+        description: 'The default AWS region'
+        renderingOptions:
+          grouping: secondary
+          groupName: Credentials
+  - name: aws-cli-rds-failover-db-cluster
+    service: WorkflowStep
+    title: 'aws / rds / failover-db-cluster'
+    description: 'Forces a failover for a DB cluster.'
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: rds-failover-db-cluster
+    script-args: ${config.db-cluster-identifier} 
+    config:
+      - type: String
+        name: db-cluster-identifier
+        title: db-cluster-identifier
+        description: 'DB cluster identifier for existing cluster to force a failover for'
+        required: true
+      - type: String
+        name: target-db-instance-identifier
+        title: target-db-instance-identifier
+        description: 'The name of the DB instance to promote to the primary DB instance.'
+      - type: String
+        name: additional-info
+        title: additional-info
+      - type: String
+        name: cli-input-json
+        title: cli-input-json
+        description: 'Performs service operation based on the JSON string provided.'
+        renderingOptions:
+          displayType: CODE
+          codeSyntaxMode: json
+      - type: String
+        name: generate-cli-skeleton
+        title: generate-cli-skeleton
+        description: 'Prints a JSON skeleton to standard output without sending an API request.'
       - type: String
         name: access_key
         title: access_key
